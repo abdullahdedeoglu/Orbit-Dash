@@ -710,7 +710,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!135 &1312830622
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1045,6 +1045,7 @@ MonoBehaviour:
   maxObstacles: 3
   maxDeathTraps: 2
   maxCollectibles: 1
+  queueProcessWaitTime: 1.5
 --- !u!4 &1807222988
 Transform:
   m_ObjectHideFlags: 0

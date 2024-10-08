@@ -32,7 +32,7 @@ public class SpawnManager : MonoBehaviour
 
     private List<Vector3> objectPositions = new List<Vector3>();
 
-    [SerializeField] private float queueProcessWaitTime = 1f;
+    [SerializeField] private float queueProcessWaitTime = 1.5f;
     private Queue<System.Action> spawnQueue = new Queue<System.Action>();
     private bool isProcessingQueue = false;
 
@@ -76,6 +76,8 @@ public class SpawnManager : MonoBehaviour
     private void ProcessQueue()
     {
         if (isProcessingQueue || spawnQueue.Count == 0) return;
+
+        Debug.Log("Queue started processing. Items in queue: " + spawnQueue.Count);
         StartCoroutine(ProcessQueueCoroutine());
     }
 
@@ -84,10 +86,17 @@ public class SpawnManager : MonoBehaviour
         isProcessingQueue = true;
         while (spawnQueue.Count > 0)
         {
-            var spawnAction = spawnQueue.Dequeue(); 
-            spawnAction(); 
+            Debug.Log("Queue Count: " + spawnQueue.Count);
+
+            var spawnAction = spawnQueue.Dequeue();
+
+            Debug.Log("Processing action...");
+            spawnAction();
+
+            Debug.Log("Action completed. Queue Count after action: " + spawnQueue.Count);
             yield return new WaitForSeconds(queueProcessWaitTime); 
         }
+        Debug.Log("Queue finished processing.");
         isProcessingQueue = false;
     }
 
@@ -132,7 +141,18 @@ public class SpawnManager : MonoBehaviour
         objectList.Add(spawnedObject);
         objectPositions.Add(spawnPosition);
 
-        StartCoroutine(DestroyObjectAfterTime(spawnedObject, spawnPosition, lifeTime, objectList));
+        spawnQueue.Enqueue(() => DestroyObjectAfterTime(spawnedObject, spawnPosition, lifeTime, objectList));
+    }
+    private void DestroyObjectAfterTime(GameObject obj, Vector3 position, float delay, List<GameObject> objectList)
+    {
+        StartCoroutine(DestroyObjectCoroutine(obj, position, delay, objectList));
+    }
+    private IEnumerator DestroyObjectCoroutine(GameObject obj, Vector3 position, float delay, List<GameObject> objectList)
+    {
+        yield return new WaitForSeconds(delay);
+        objectList.Remove(obj);
+        objectPositions.Remove(position);
+        Destroy(obj);
     }
 
     private bool IsFarEnoughFromOthers(Vector3 newPosition)
@@ -147,11 +167,4 @@ public class SpawnManager : MonoBehaviour
         return true;
     }
 
-    private IEnumerator DestroyObjectAfterTime(GameObject obj, Vector3 position, float delay, List<GameObject> objectList)
-    {
-        yield return new WaitForSeconds(delay);
-        objectList.Remove(obj);
-        objectPositions.Remove(position);
-        Destroy(obj);
-    }
 }
