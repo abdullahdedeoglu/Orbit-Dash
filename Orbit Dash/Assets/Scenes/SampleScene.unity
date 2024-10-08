@@ -710,7 +710,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!135 &1312830622
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1010,7 +1010,7 @@ GameObject:
   - component: {fileID: 1807222988}
   - component: {fileID: 1807222987}
   m_Layer: 0
-  m_Name: ObstacleSpawner
+  m_Name: Spawn Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1030,14 +1030,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obstaclePrefab: {fileID: 3372669629649980120, guid: d0953a2af1b5d7e45a079e9a1ff83c59,
     type: 3}
+  deathTrapPrefab: {fileID: 5181211049436767616, guid: 3a2f8998362bac647ad8c4f95984f2f3,
+    type: 3}
+  collectiblePrefab: {fileID: 6988682782148014553, guid: 6c4b95f7d794f4c4f8ddfb81857a64d1,
+    type: 3}
   plain: {fileID: 1038778581}
-  spawnInterval: 2
-  spawnRangeX: 0.45
-  spawnRangeZ: 0.45
-  obstacleLifeTime: 10
   minimumSpawnDistance: 0.6
-  spawnedObstacles: []
-  obstaclePositions: []
+  obstacleSpawnInterval: 2
+  deathTrapSpawnInterval: 4
+  collectibleSpawnInterval: 5
+  obstacleLifeTime: 5
+  deathTrapLifeTime: 7
+  collectibleLifeTime: 10
+  maxObstacles: 3
+  maxDeathTraps: 2
+  maxCollectibles: 1
 --- !u!4 &1807222988
 Transform:
   m_ObjectHideFlags: 0
