@@ -2,11 +2,15 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
+    private int scorePoint = 1;
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Collectible"))
         {
-            ScoreManager.Instance.AddScore(1);
+            //ScoreManager.Instance.AddScore(1);
+
+            GameManager.Instance.AddScore(scorePoint);
 
             // Yem'in pozisyonunu al
             Vector3 collectiblePosition = other.transform.position;
@@ -18,6 +22,7 @@ public class Ball : MonoBehaviour
         {
             CanvasManager.Instance.ShowDeathMessage(); 
             Destroy(this.gameObject);
+            GameManager.Instance.EndGame();
         }
     }
 

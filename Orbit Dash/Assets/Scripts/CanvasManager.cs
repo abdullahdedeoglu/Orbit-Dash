@@ -28,7 +28,7 @@ public class CanvasManager : MonoBehaviour
 
     public void UpdateScoreUI(int newScore)
     {
-        scoreText.text = "Skor: " + newScore;
+        scoreText.text = "Score: " + newScore;
     }
 
     public void ShowDeathMessage()
