@@ -6,25 +6,13 @@ public class SpawnManager : MonoBehaviour
 {
     public static SpawnManager Instance { get; private set; }
 
-    public GameObject obstaclePrefab;
-    public GameObject deathTrapPrefab;
-    public GameObject collectiblePrefab;
+    public SpawnableObject obstacleData;   
+    public SpawnableObject deathTrapData;  
+    public SpawnableObject collectibleData;
 
     public Transform plain;
 
     public float minimumSpawnDistance = 0.6f;
-
-    public float obstacleSpawnInterval = 2f;
-    public float deathTrapSpawnInterval = 6f;
-    public float collectibleSpawnInterval = 11f;
-
-    public float obstacleLifeTime = 5f;
-    public float deathTrapLifeTime = 7f;
-    public float collectibleLifeTime = 10f;
-
-    public int maxObstacles = 3;
-    public int maxDeathTraps = 2;
-    public int maxCollectibles = 1;
 
     private List<GameObject> spawnedObstacles = new List<GameObject>();
     private List<GameObject> spawnedDeathTraps = new List<GameObject>();
@@ -50,26 +38,26 @@ public class SpawnManager : MonoBehaviour
 
     private void Start()
     {
-        InvokeRepeating("QueueObstacleSpawn", 2f, obstacleSpawnInterval);
-        InvokeRepeating("QueueDeathTrapSpawn", 6f, deathTrapSpawnInterval);
-        InvokeRepeating("QueueCollectibleSpawn", 11f, collectibleSpawnInterval);
+        InvokeRepeating("QueueSpawnObstacle", 2f, obstacleData.spawnInterval);
+        InvokeRepeating("QueueSpawnDeathTrap", 6f, deathTrapData.spawnInterval);
+        InvokeRepeating("QueueSpawnCollectible", 11f, collectibleData.spawnInterval);
     }
 
-    private void QueueObstacleSpawn()
+    private void QueueSpawnObstacle()
     {
-        spawnQueue.Enqueue(() => SpawnObstacle());
+        spawnQueue.Enqueue(() => SpawnObject(obstacleData, spawnedObstacles));
         ProcessQueue();
     }
 
-    private void QueueDeathTrapSpawn()
+    private void QueueSpawnDeathTrap()
     {
-        spawnQueue.Enqueue(() => SpawnDeathTrap());
+        spawnQueue.Enqueue(() => SpawnObject(deathTrapData, spawnedDeathTraps));
         ProcessQueue();
     }
 
-    private void QueueCollectibleSpawn()
+    private void QueueSpawnCollectible()
     {
-        spawnQueue.Enqueue(() => SpawnCollectible());
+        spawnQueue.Enqueue(() => SpawnObject(collectibleData, spawnedCollectibles));
         ProcessQueue();
     }
 
@@ -77,7 +65,6 @@ public class SpawnManager : MonoBehaviour
     {
         if (isProcessingQueue || spawnQueue.Count == 0) return;
 
-        Debug.Log("Queue started processing. Items in queue: " + spawnQueue.Count);
         StartCoroutine(ProcessQueueCoroutine());
     }
 
@@ -86,40 +73,17 @@ public class SpawnManager : MonoBehaviour
         isProcessingQueue = true;
         while (spawnQueue.Count > 0)
         {
-            Debug.Log("Queue Count: " + spawnQueue.Count);
-
             var spawnAction = spawnQueue.Dequeue();
-
-            Debug.Log("Processing action...");
             spawnAction();
-
-            Debug.Log("Action completed. Queue Count after action: " + spawnQueue.Count);
-            yield return new WaitForSeconds(queueProcessWaitTime); 
+            yield return new WaitForSeconds(queueProcessWaitTime);
         }
-        Debug.Log("Queue finished processing.");
         isProcessingQueue = false;
     }
 
-    private void SpawnObstacle()
+    private void SpawnObject(SpawnableObject spawnableData, List<GameObject> objectList)
     {
-        if (spawnedObstacles.Count >= maxObstacles) return;
-        SpawnObject(obstaclePrefab, obstacleLifeTime, spawnedObstacles);
-    }
+        if (objectList.Count >= spawnableData.maxCount) return;
 
-    private void SpawnDeathTrap()
-    {
-        if (spawnedDeathTraps.Count >= maxDeathTraps) return;
-        SpawnObject(deathTrapPrefab, deathTrapLifeTime, spawnedDeathTraps);
-    }
-
-    private void SpawnCollectible()
-    {
-        if (spawnedCollectibles.Count >= maxCollectibles) return;
-        SpawnObject(collectiblePrefab, collectibleLifeTime, spawnedCollectibles);
-    }
-
-    private void SpawnObject(GameObject prefab, float lifeTime, List<GameObject> objectList)
-    {
         Vector3 randomPosition;
         Vector3 spawnPosition;
         int maxAttempts = 10;
@@ -135,13 +99,13 @@ public class SpawnManager : MonoBehaviour
 
         if (attempts >= maxAttempts) return;
 
-        GameObject spawnedObject = Instantiate(prefab, spawnPosition, plain.rotation);
+        GameObject spawnedObject = Instantiate(spawnableData.prefab, spawnPosition, plain.rotation);
         spawnedObject.transform.parent = plain;
 
         objectList.Add(spawnedObject);
         objectPositions.Add(spawnPosition);
 
-        spawnQueue.Enqueue(() => DestroyObjectAfterTime(spawnedObject, spawnPosition, lifeTime, objectList));
+        spawnQueue.Enqueue(() => DestroyObjectAfterTime(spawnedObject, spawnPosition, spawnableData.lifeTime, objectList));
     }
     private void DestroyObjectAfterTime(GameObject obj, Vector3 position, float delay, List<GameObject> objectList)
     {
@@ -166,5 +130,5 @@ public class SpawnManager : MonoBehaviour
         }
         return true;
     }
-
 }
+

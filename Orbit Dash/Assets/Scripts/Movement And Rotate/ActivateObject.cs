@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ActivateObject : MonoBehaviour
@@ -9,8 +7,7 @@ public class ActivateObject : MonoBehaviour
 
     private void Start()
     {
-        //plainObject = GameObject.Find("Cube").GetComponent<DragAndRotate>();
-        plainObject = GameObject.FindWithTag("Plain").GetComponent<DragAndRotate>();
+        plainObject = GameObject.FindWithTag("Game Area").GetComponent<DragAndRotate>();
     }
     void Update()
     {

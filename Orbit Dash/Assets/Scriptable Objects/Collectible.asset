@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3ec4679d691e4644b3c29a62f786ba4, type: 3}
+  m_Name: Collectible
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 6988682782148014553, guid: 6c4b95f7d794f4c4f8ddfb81857a64d1, type: 3}
+  spawnInterval: 5
+  lifeTime: 10
+  maxCount: 1
