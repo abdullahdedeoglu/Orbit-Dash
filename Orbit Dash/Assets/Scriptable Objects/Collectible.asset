@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Collectible
   m_EditorClassIdentifier: 
   prefab: {fileID: 6988682782148014553, guid: 6c4b95f7d794f4c4f8ddfb81857a64d1, type: 3}
-  spawnInterval: 5
+  spawnInterval: 2
   lifeTime: 10
-  maxCount: 1
+  maxCount: 5

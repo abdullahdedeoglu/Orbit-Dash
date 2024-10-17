@@ -15,4 +15,4 @@ MonoBehaviour:
   prefab: {fileID: 5181211049436767616, guid: 3a2f8998362bac647ad8c4f95984f2f3, type: 3}
   spawnInterval: 4
   lifeTime: 7
-  maxCount: 2
+  maxCount: 0
