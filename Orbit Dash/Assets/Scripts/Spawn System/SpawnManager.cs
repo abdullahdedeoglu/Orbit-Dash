@@ -38,9 +38,9 @@ public class SpawnManager : MonoBehaviour
 
     private void Start()
     {
-        InvokeRepeating("QueueSpawnObstacle", 2f, obstacleData.spawnInterval);
+        InvokeRepeating("QueueSpawnCollectible", 2f, collectibleData.spawnInterval);
+        InvokeRepeating("QueueSpawnObstacle", 4f, obstacleData.spawnInterval);
         InvokeRepeating("QueueSpawnDeathTrap", 6f, deathTrapData.spawnInterval);
-        InvokeRepeating("QueueSpawnCollectible", 11f, collectibleData.spawnInterval);
     }
 
     private void QueueSpawnObstacle()
@@ -129,6 +129,16 @@ public class SpawnManager : MonoBehaviour
             }
         }
         return true;
+    }
+
+    public void RemoveCollectible(GameObject collectible, Vector3 position)
+    {
+        spawnedCollectibles.Remove(collectible); // Collectible'ý listeden sil
+        objectPositions.Remove(position); // Pozisyonu da listeden sil
+        Destroy(collectible); // Objeyi yok et
+
+        // Hemen yeni bir collectible spawn iþlemini kuyrukta baþlat
+        QueueSpawnCollectible();
     }
 }
 

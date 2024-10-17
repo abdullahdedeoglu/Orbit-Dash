@@ -6,9 +6,19 @@ public class Ball : MonoBehaviour
     {
         if (other.CompareTag("Collectible"))
         {
-            Debug.Log("Just eat itttt eat ittt eat itttt eat ittt");
-            ScoreManager.Instance.AddScore(1); 
-            Destroy(other.gameObject); 
+            ScoreManager.Instance.AddScore(1);
+
+            // Yem'in pozisyonunu al
+            Vector3 collectiblePosition = other.transform.position;
+
+            // SpawnManager'a collectible'ý ve pozisyonunu silmesi talimatýný ver
+            SpawnManager.Instance.RemoveCollectible(other.gameObject, collectiblePosition);
+        }
+        else if (other.CompareTag("Death Trap"))
+        {
+            CanvasManager.Instance.ShowDeathMessage(); 
+            Destroy(this.gameObject);
         }
     }
+
 }

@@ -3,10 +3,9 @@ using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
-    public static ScoreManager Instance { get; private set; }
+    public static ScoreManager Instance;
 
-    public TextMeshProUGUI scoreText; 
-    private int score = 0;
+    private int score;
 
     private void Awake()
     {
@@ -20,19 +19,15 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        UpdateScoreUI(); 
-    }
-
     public void AddScore(int amount)
     {
         score += amount;
-        UpdateScoreUI();
+        CanvasManager.Instance.UpdateScoreUI(score); 
     }
 
-    private void UpdateScoreUI()
+    public int GetScore()
     {
-        scoreText.text = "Score: " + score.ToString();
+        return score;
     }
 }
+

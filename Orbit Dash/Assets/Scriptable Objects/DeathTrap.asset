@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: DeathTrap
   m_EditorClassIdentifier: 
   prefab: {fileID: 5181211049436767616, guid: 3a2f8998362bac647ad8c4f95984f2f3, type: 3}
-  spawnInterval: 4
-  lifeTime: 7
-  maxCount: 0
+  spawnInterval: 3
+  lifeTime: 5
+  maxCount: 2

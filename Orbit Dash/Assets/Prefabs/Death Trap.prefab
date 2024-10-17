@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5181211049436767617}
   m_Layer: 0
   m_Name: Death Trap
-  m_TagString: Untagged
+  m_TagString: Death Trap
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
