@@ -20,7 +20,6 @@ public class Ball : MonoBehaviour
         }
         else if (other.CompareTag("Death Trap"))
         {
-            CanvasManager.Instance.ShowDeathMessage(); 
             Destroy(this.gameObject);
             GameManager.Instance.EndGame();
         }

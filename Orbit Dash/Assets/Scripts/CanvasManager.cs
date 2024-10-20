@@ -1,17 +1,21 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI; // Transparan arka plan için
+using UnityEngine.UI;
 
 public class CanvasManager : MonoBehaviour
 {
     public static CanvasManager Instance { get; private set; }
 
     public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI highScoreText; // Yüksek skor metni
+    public TextMeshProUGUI highScoreText;
     public TextMeshProUGUI deathText;
 
-    public GameObject pauseButton; // Pause butonunu referans al
-    public Image pauseBackground; // Pause ekraný arka planý için transparan efekt
+    public GameObject pauseButton;
+    public Image pauseBackground;
+
+    public GameObject gameOverCanvas; // Yeni game over canvas
+    public TextMeshProUGUI currentScoreText; // Þu anki skor metni
+    public TextMeshProUGUI gameOverHighScoreText; // Game over ekranýnda yüksek skor
 
     private void Awake()
     {
@@ -29,8 +33,8 @@ public class CanvasManager : MonoBehaviour
     {
         UpdateScoreUI(0);
         deathText.gameObject.SetActive(false);
-        highScoreText.gameObject.SetActive(false); // Ýlk baþta gizli
-        pauseBackground.color = new Color(0, 0, 0, 0.5f); // Transparan siyah arka plan
+        highScoreText.gameObject.SetActive(false);
+        pauseBackground.color = new Color(0, 0, 0, 0.5f);
     }
 
     public void UpdateScoreUI(int newScore)
@@ -56,10 +60,13 @@ public class CanvasManager : MonoBehaviour
         pauseButton.SetActive(true);
     }
 
-    public void ShowDeathMessage()
+    // Game Over ekranýný gösteren fonksiyon
+    public void ShowGameOverUI(int currentScore, int highScore)
     {
-        deathText.text = "Game Over!";
-        deathText.gameObject.SetActive(true);
+        gameOverCanvas.SetActive(true);
+        currentScoreText.text = "Score: " + currentScore;
+        gameOverHighScoreText.text = "High Score: " + highScore;
+        HideScoreAndPauseButton(); // Skor ve pause butonlarýný gizle
     }
 
     public void OnPauseButtonPressed()

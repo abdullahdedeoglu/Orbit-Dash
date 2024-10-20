@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public bool isGameActive = false;
 
     public GameObject pauseCanvas;
+    public GameObject gameOverCanvas; // Yeni game over canvas
     public bool isPaused = false;
 
     private void Awake()
@@ -29,6 +30,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         pauseCanvas.SetActive(false);
+        gameOverCanvas.SetActive(false); // Game over canvas baþlangýçta gizli
     }
 
     public void StartGame()
@@ -49,6 +51,9 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.SetInt("HighScore", highScore);
             PlayerPrefs.Save();
         }
+
+        // Game over ekranýný göster
+        CanvasManager.Instance.ShowGameOverUI(currentScore, highScore);
     }
 
     public void AddScore(int value)
@@ -75,10 +80,7 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0; // Oyun durduruluyor
         pauseCanvas.SetActive(true); // Pause canvas'ý gösteriliyor
 
-        // Skor ve pause butonunu gizle
         CanvasManager.Instance.HideScoreAndPauseButton();
-
-        // Yüksek skoru pause ekranýnda güncelle
         CanvasManager.Instance.UpdateHighScoreUI(highScore);
     }
 
@@ -88,7 +90,6 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1; // Oyun devam ediyor
         pauseCanvas.SetActive(false); // Pause canvas'ý gizleniyor
 
-        // Skoru ve pause butonunu tekrar göster
         CanvasManager.Instance.ShowScoreAndPauseButton();
     }
 
@@ -101,7 +102,18 @@ public class GameManager : MonoBehaviour
     public void QuitToMainMenu()
     {
         Time.timeScale = 1;
-        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenuScene");
+    }
+
+    // Oynamaya devam et (ileride detaylýca yazacaðýz)
+    public void ContinueGame()
+    {
+        isGameActive = true;
+        Time.timeScale = 1;
+        // Topu ortadan yeniden baþlat (ileride eklenecek)
+        gameOverCanvas.SetActive(false); // Game over canvas'ý gizle
+        CanvasManager.Instance.ShowScoreAndPauseButton(); // Skor ve pause butonunu geri getir
     }
 }
+
 
