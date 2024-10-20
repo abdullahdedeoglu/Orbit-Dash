@@ -6,8 +6,8 @@ public class SpawnManager : MonoBehaviour
 {
     public static SpawnManager Instance { get; private set; }
 
-    public SpawnableObject obstacleData;   
-    public SpawnableObject deathTrapData;  
+    public SpawnableObject obstacleData;
+    public SpawnableObject deathTrapData;
     public SpawnableObject collectibleData;
 
     public Transform plain;
@@ -45,25 +45,28 @@ public class SpawnManager : MonoBehaviour
 
     private void QueueSpawnObstacle()
     {
+        if (!GameManager.Instance.isGameActive) return; // Oyun aktif deðilse çýk
         spawnQueue.Enqueue(() => SpawnObject(obstacleData, spawnedObstacles));
         ProcessQueue();
     }
 
     private void QueueSpawnDeathTrap()
     {
+        if (!GameManager.Instance.isGameActive) return; // Oyun aktif deðilse çýk
         spawnQueue.Enqueue(() => SpawnObject(deathTrapData, spawnedDeathTraps));
         ProcessQueue();
     }
 
     private void QueueSpawnCollectible()
     {
+        if (!GameManager.Instance.isGameActive) return; // Oyun aktif deðilse çýk
         spawnQueue.Enqueue(() => SpawnObject(collectibleData, spawnedCollectibles));
         ProcessQueue();
     }
 
     private void ProcessQueue()
     {
-        if (isProcessingQueue || spawnQueue.Count == 0) return;
+        if (isProcessingQueue || spawnQueue.Count == 0 || !GameManager.Instance.isGameActive) return; // Oyun aktif deðilse iþlemi durdur
 
         StartCoroutine(ProcessQueueCoroutine());
     }
@@ -73,6 +76,7 @@ public class SpawnManager : MonoBehaviour
         isProcessingQueue = true;
         while (spawnQueue.Count > 0)
         {
+            if (!GameManager.Instance.isGameActive) break; // Oyun durduysa iþlemi durdur
             var spawnAction = spawnQueue.Dequeue();
             spawnAction();
             yield return new WaitForSeconds(queueProcessWaitTime);
@@ -82,7 +86,7 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnObject(SpawnableObject spawnableData, List<GameObject> objectList)
     {
-        if (objectList.Count >= spawnableData.maxCount) return;
+        if (objectList.Count >= spawnableData.maxCount || !GameManager.Instance.isGameActive) return; // Oyun aktif deðilse veya limit doluysa çýk
 
         Vector3 randomPosition;
         Vector3 spawnPosition;
@@ -107,10 +111,12 @@ public class SpawnManager : MonoBehaviour
 
         spawnQueue.Enqueue(() => DestroyObjectAfterTime(spawnedObject, spawnPosition, spawnableData.lifeTime, objectList));
     }
+
     private void DestroyObjectAfterTime(GameObject obj, Vector3 position, float delay, List<GameObject> objectList)
     {
         StartCoroutine(DestroyObjectCoroutine(obj, position, delay, objectList));
     }
+
     private IEnumerator DestroyObjectCoroutine(GameObject obj, Vector3 position, float delay, List<GameObject> objectList)
     {
         yield return new WaitForSeconds(delay);
@@ -133,12 +139,10 @@ public class SpawnManager : MonoBehaviour
 
     public void RemoveCollectible(GameObject collectible, Vector3 position)
     {
-        spawnedCollectibles.Remove(collectible); // Collectible'ý listeden sil
-        objectPositions.Remove(position); // Pozisyonu da listeden sil
-        Destroy(collectible); // Objeyi yok et
+        spawnedCollectibles.Remove(collectible);
+        objectPositions.Remove(position);
+        Destroy(collectible);
 
-        // Hemen yeni bir collectible spawn iþlemini kuyrukta baþlat
         QueueSpawnCollectible();
     }
 }
-

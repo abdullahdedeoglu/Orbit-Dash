@@ -8,6 +8,9 @@ public class GameManager : MonoBehaviour
     private int highScore = 0;
     public bool isGameActive = false;
 
+    public GameObject pauseCanvas;
+    public bool isPaused = false;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -20,8 +23,12 @@ public class GameManager : MonoBehaviour
             StartGame();
         }
 
-        // Load high score from previous session
         highScore = PlayerPrefs.GetInt("HighScore", 0);
+    }
+
+    private void Start()
+    {
+        pauseCanvas.SetActive(false);
     }
 
     public void StartGame()
@@ -29,59 +36,72 @@ public class GameManager : MonoBehaviour
         currentScore = 0;
         isGameActive = true;
 
-        // UI'yi güncelleme
         CanvasManager.Instance.UpdateScoreUI(currentScore);
-        // Diðer oyun baþlangýcýyla ilgili iþlemler
     }
 
     public void EndGame()
     {
         isGameActive = false;
 
-        // Eðer mevcut skor yüksek skordan büyükse, yeni yüksek skoru kaydet
         if (currentScore > highScore)
         {
             highScore = currentScore;
             PlayerPrefs.SetInt("HighScore", highScore);
             PlayerPrefs.Save();
         }
-
-        // Oyunun bittiðini Canvas'a bildir
-        // CanvasManager.Instance.ShowGameOverScreen(currentScore, highScore);
     }
 
-    // Skor eklemek için kullanýlacak fonksiyon
     public void AddScore(int value)
     {
         if (!isGameActive) return;
 
-        Debug.Log("Score added");
         currentScore += value;
         CanvasManager.Instance.UpdateScoreUI(currentScore);  // Skoru güncelle
     }
 
-    // Skoru döndüren fonksiyon
     public int GetCurrentScore()
     {
         return currentScore;
     }
 
-    // Yüksek skoru döndüren fonksiyon
     public int GetHighScore()
     {
         return highScore;
     }
 
-    // Oyunu yeniden baþlatma
-    public void RestartGame()
+    public void PauseGame()
     {
-        StartGame();
-        // Oyun deðiþkenlerini sýfýrlama iþlemleri buraya eklenebilir
+        isPaused = true;
+        Time.timeScale = 0; // Oyun durduruluyor
+        pauseCanvas.SetActive(true); // Pause canvas'ý gösteriliyor
+
+        // Skor ve pause butonunu gizle
+        CanvasManager.Instance.HideScoreAndPauseButton();
+
+        // Yüksek skoru pause ekranýnda güncelle
+        CanvasManager.Instance.UpdateHighScoreUI(highScore);
     }
 
-    // Oyunu kapatma iþlemi
-    public void QuitGame()
+    public void ResumeGame()
     {
-        Application.Quit();
+        isPaused = false;
+        Time.timeScale = 1; // Oyun devam ediyor
+        pauseCanvas.SetActive(false); // Pause canvas'ý gizleniyor
+
+        // Skoru ve pause butonunu tekrar göster
+        CanvasManager.Instance.ShowScoreAndPauseButton();
+    }
+
+    public void RestartGame()
+    {
+        Time.timeScale = 1;
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    }
+
+    public void QuitToMainMenu()
+    {
+        Time.timeScale = 1;
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
 }
+

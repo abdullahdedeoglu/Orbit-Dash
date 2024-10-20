@@ -1,12 +1,17 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI; // Transparan arka plan için
 
 public class CanvasManager : MonoBehaviour
 {
     public static CanvasManager Instance { get; private set; }
 
-    public TextMeshProUGUI scoreText; 
-    public TextMeshProUGUI deathText; 
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI highScoreText; // Yüksek skor metni
+    public TextMeshProUGUI deathText;
+
+    public GameObject pauseButton; // Pause butonunu referans al
+    public Image pauseBackground; // Pause ekraný arka planý için transparan efekt
 
     private void Awake()
     {
@@ -22,8 +27,10 @@ public class CanvasManager : MonoBehaviour
 
     private void Start()
     {
-        UpdateScoreUI(0); 
-        deathText.gameObject.SetActive(false); 
+        UpdateScoreUI(0);
+        deathText.gameObject.SetActive(false);
+        highScoreText.gameObject.SetActive(false); // Ýlk baþta gizli
+        pauseBackground.color = new Color(0, 0, 0, 0.5f); // Transparan siyah arka plan
     }
 
     public void UpdateScoreUI(int newScore)
@@ -31,9 +38,39 @@ public class CanvasManager : MonoBehaviour
         scoreText.text = "Score: " + newScore;
     }
 
+    public void UpdateHighScoreUI(int highScore)
+    {
+        highScoreText.text = "High Score: " + highScore;
+        highScoreText.gameObject.SetActive(true);
+    }
+
+    public void HideScoreAndPauseButton()
+    {
+        scoreText.gameObject.SetActive(false);
+        pauseButton.SetActive(false);
+    }
+
+    public void ShowScoreAndPauseButton()
+    {
+        scoreText.gameObject.SetActive(true);
+        pauseButton.SetActive(true);
+    }
+
     public void ShowDeathMessage()
     {
         deathText.text = "Game Over!";
         deathText.gameObject.SetActive(true);
+    }
+
+    public void OnPauseButtonPressed()
+    {
+        if (GameManager.Instance.isPaused)
+        {
+            GameManager.Instance.ResumeGame();
+        }
+        else
+        {
+            GameManager.Instance.PauseGame();
+        }
     }
 }
