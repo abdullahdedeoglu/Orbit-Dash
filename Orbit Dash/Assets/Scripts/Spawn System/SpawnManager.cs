@@ -24,6 +24,9 @@ public class SpawnManager : MonoBehaviour
     private Queue<System.Action> spawnQueue = new Queue<System.Action>();
     private bool isProcessingQueue = false;
 
+    public GameObject ballPrefab; 
+    private GameObject currentBall; 
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -45,21 +48,21 @@ public class SpawnManager : MonoBehaviour
 
     private void QueueSpawnObstacle()
     {
-        if (!GameManager.Instance.isGameActive) return; // Oyun aktif deðilse çýk
+        if (!GameManager.Instance.isGameActive) return; 
         spawnQueue.Enqueue(() => SpawnObject(obstacleData, spawnedObstacles));
         ProcessQueue();
     }
 
     private void QueueSpawnDeathTrap()
     {
-        if (!GameManager.Instance.isGameActive) return; // Oyun aktif deðilse çýk
+        if (!GameManager.Instance.isGameActive) return; 
         spawnQueue.Enqueue(() => SpawnObject(deathTrapData, spawnedDeathTraps));
         ProcessQueue();
     }
 
     private void QueueSpawnCollectible()
     {
-        if (!GameManager.Instance.isGameActive) return; // Oyun aktif deðilse çýk
+        if (!GameManager.Instance.isGameActive) return; 
         spawnQueue.Enqueue(() => SpawnObject(collectibleData, spawnedCollectibles));
         ProcessQueue();
     }
@@ -145,4 +148,45 @@ public class SpawnManager : MonoBehaviour
 
         QueueSpawnCollectible();
     }
+    public void ClearAreaAround(Vector3 position, float radius)
+    {
+        // Engelleri kontrol et
+        ClearObjectsInRange(spawnedObstacles, position, radius);
+        // Ölüm tuzaklarýný kontrol et
+        ClearObjectsInRange(spawnedDeathTraps, position, radius);
+        // Yemleri kontrol et
+        ClearObjectsInRange(spawnedCollectibles, position, radius);
+    }
+
+    private void ClearObjectsInRange(List<GameObject> objectList, Vector3 center, float range)
+    {
+        List<GameObject> objectsToRemove = new List<GameObject>();
+
+        foreach (GameObject obj in objectList)
+        {
+            if (Vector3.Distance(obj.transform.position, center) < range)
+            {
+                objectsToRemove.Add(obj);
+            }
+        }
+
+        foreach (GameObject obj in objectsToRemove)
+        {
+            objectList.Remove(obj);
+            objectPositions.Remove(obj.transform.position);
+            Destroy(obj);
+        }
+    }
+    public void SpawnBall(Vector3 spawnPosition)
+    {
+        // Eðer sahnede hâlihazýrda bir top varsa onu yok edelim
+        if (currentBall != null)
+        {
+            Destroy(currentBall);
+        }
+
+        // Yeni topu belirtilen pozisyonda spawnla ve referansý sakla
+        currentBall = Instantiate(ballPrefab, spawnPosition, Quaternion.identity);
+    }
+
 }

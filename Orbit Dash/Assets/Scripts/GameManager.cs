@@ -31,6 +31,8 @@ public class GameManager : MonoBehaviour
     {
         pauseCanvas.SetActive(false);
         gameOverCanvas.SetActive(false); // Game over canvas baþlangýçta gizli
+
+        Screen.orientation = ScreenOrientation.LandscapeLeft;
     }
 
     public void StartGame()
@@ -110,9 +112,19 @@ public class GameManager : MonoBehaviour
     {
         isGameActive = true;
         Time.timeScale = 1;
-        // Topu ortadan yeniden baþlat (ileride eklenecek)
+
+        // Topu (0, 0.6, 0) pozisyonunda yeniden baþlat
+        Vector3 respawnPosition = new Vector3(0, 0.6f, 0);
+
+        // Oyun alanýndaki engelleri, triggerlarý ve yemleri temizle
+        SpawnManager.Instance.ClearAreaAround(respawnPosition, 0.6f);
+
+        // Topu spawnla
+        SpawnManager.Instance.SpawnBall(respawnPosition);
+
         gameOverCanvas.SetActive(false); // Game over canvas'ý gizle
         CanvasManager.Instance.ShowScoreAndPauseButton(); // Skor ve pause butonunu geri getir
+        
     }
 }
 

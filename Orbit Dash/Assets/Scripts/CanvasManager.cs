@@ -32,7 +32,6 @@ public class CanvasManager : MonoBehaviour
     private void Start()
     {
         UpdateScoreUI(0);
-        deathText.gameObject.SetActive(false);
         highScoreText.gameObject.SetActive(false);
         pauseBackground.color = new Color(0, 0, 0, 0.5f);
     }
