@@ -7,10 +7,13 @@ public class GameManager : MonoBehaviour
     private int currentScore = 0;
     private int highScore = 0;
     public bool isGameActive = false;
+    public bool isTutorialCompleted = false;
 
     public GameObject pauseCanvas;
-    public GameObject gameOverCanvas; // Yeni game over canvas
+    public GameObject gameOverCanvas;
     public bool isPaused = false;
+
+    public GameObject cameraHolder;
 
     private void Awake()
     {
@@ -21,7 +24,6 @@ public class GameManager : MonoBehaviour
         else
         {
             Instance = this;
-            StartGame();
         }
 
         highScore = PlayerPrefs.GetInt("HighScore", 0);
@@ -29,18 +31,39 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        pauseCanvas.SetActive(false);
-        gameOverCanvas.SetActive(false); // Game over canvas baþlangýçta gizli
 
         Screen.orientation = ScreenOrientation.LandscapeLeft;
+
+        isTutorialCompleted = PlayerPrefs.GetInt("TutorialCompleted", 0) == 1;
+
+        pauseCanvas.SetActive(false);
+        gameOverCanvas.SetActive(false);
+
+        if (!isTutorialCompleted)
+        {
+            TutorialManager.Instance.StartTutorial();
+        }
+        else StartGame();
+        
+    }
+
+    public void ActivateGame()
+    {
+        isGameActive = true;
+        ActivateObject activateObject = cameraHolder.GetComponent<ActivateObject>();
+        activateObject.enabled = true;
+
+        if (!isPaused && isTutorialCompleted) // Tutorial tamamlandÄ±ysa ball spawnla
+        {
+            SpawnManager.Instance.SpawnBall(new Vector3(0, 0.6f, 0));
+        }
     }
 
     public void StartGame()
     {
-        currentScore = 0;
-        isGameActive = true;
-
-        CanvasManager.Instance.UpdateScoreUI(currentScore);
+        //if (!isTutorialCompleted)
+        //    ResetTheSettings();
+        CanvasManager.Instance.StartCountdown(true); 
     }
 
     public void EndGame()
@@ -54,7 +77,6 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.Save();
         }
 
-        // Game over ekranýný göster
         CanvasManager.Instance.ShowGameOverUI(currentScore, highScore);
     }
 
@@ -63,7 +85,7 @@ public class GameManager : MonoBehaviour
         if (!isGameActive) return;
 
         currentScore += value;
-        CanvasManager.Instance.UpdateScoreUI(currentScore);  // Skoru güncelle
+        CanvasManager.Instance.UpdateScoreUI(currentScore);
     }
 
     public int GetCurrentScore()
@@ -79,8 +101,8 @@ public class GameManager : MonoBehaviour
     public void PauseGame()
     {
         isPaused = true;
-        Time.timeScale = 0; // Oyun durduruluyor
-        pauseCanvas.SetActive(true); // Pause canvas'ý gösteriliyor
+        Time.timeScale = 0;
+        pauseCanvas.SetActive(true);
 
         CanvasManager.Instance.HideScoreAndPauseButton();
         CanvasManager.Instance.UpdateHighScoreUI(highScore);
@@ -89,17 +111,21 @@ public class GameManager : MonoBehaviour
     public void ResumeGame()
     {
         isPaused = false;
-        Time.timeScale = 1; // Oyun devam ediyor
-        pauseCanvas.SetActive(false); // Pause canvas'ý gizleniyor
+        pauseCanvas.SetActive(false);
 
         CanvasManager.Instance.ShowScoreAndPauseButton();
+        CanvasManager.Instance.StartCountdown(false); // Pause sonrasÄ± devam etmek iÃ§in
     }
-
     public void RestartGame()
     {
         Time.timeScale = 1;
         UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
+
+    //private void ResetTheSettings()
+    //{
+
+    //}
 
     public void QuitToMainMenu()
     {
@@ -107,25 +133,16 @@ public class GameManager : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenuScene");
     }
 
-    // Oynamaya devam et (ileride detaylýca yazacaðýz)
     public void ContinueGame()
     {
-        isGameActive = true;
-        Time.timeScale = 1;
+        gameOverCanvas.SetActive(false);
+        isGameActive = false;
+        CanvasManager.Instance.ShowScoreAndPauseButton();
+        SpawnManager.Instance.ClearAreaAround(new Vector3(0, 0.6f, 0), 0.6f);
+        SpawnManager.Instance.SpawnBall(new Vector3(0, 0.6f, 0));
 
-        // Topu (0, 0.6, 0) pozisyonunda yeniden baþlat
-        Vector3 respawnPosition = new Vector3(0, 0.6f, 0);
-
-        // Oyun alanýndaki engelleri, triggerlarý ve yemleri temizle
-        SpawnManager.Instance.ClearAreaAround(respawnPosition, 0.6f);
-
-        // Topu spawnla
-        SpawnManager.Instance.SpawnBall(respawnPosition);
-
-        gameOverCanvas.SetActive(false); // Game over canvas'ý gizle
-        CanvasManager.Instance.ShowScoreAndPauseButton(); // Skor ve pause butonunu geri getir
-        
+        CanvasManager.Instance.StartCountdown(true);
     }
+
+
 }
-
-

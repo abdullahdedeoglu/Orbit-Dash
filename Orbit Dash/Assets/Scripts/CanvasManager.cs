@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class CanvasManager : MonoBehaviour
 {
@@ -13,9 +14,11 @@ public class CanvasManager : MonoBehaviour
     public GameObject pauseButton;
     public Image pauseBackground;
 
-    public GameObject gameOverCanvas; // Yeni game over canvas
-    public TextMeshProUGUI currentScoreText; // Þu anki skor metni
-    public TextMeshProUGUI gameOverHighScoreText; // Game over ekranýnda yüksek skor
+    public GameObject gameOverCanvas;
+    public TextMeshProUGUI currentScoreText;
+    public TextMeshProUGUI gameOverHighScoreText;
+
+    public TextMeshProUGUI countdownText; // Geri sayým için UI elementi
 
     private void Awake()
     {
@@ -34,6 +37,7 @@ public class CanvasManager : MonoBehaviour
         UpdateScoreUI(0);
         highScoreText.gameObject.SetActive(false);
         pauseBackground.color = new Color(0, 0, 0, 0.5f);
+        countdownText.gameObject.SetActive(false); // Geri sayýmý gizle
     }
 
     public void UpdateScoreUI(int newScore)
@@ -59,13 +63,12 @@ public class CanvasManager : MonoBehaviour
         pauseButton.SetActive(true);
     }
 
-    // Game Over ekranýný gösteren fonksiyon
     public void ShowGameOverUI(int currentScore, int highScore)
     {
         gameOverCanvas.SetActive(true);
         currentScoreText.text = "Score: " + currentScore;
         gameOverHighScoreText.text = "High Score: " + highScore;
-        HideScoreAndPauseButton(); // Skor ve pause butonlarýný gizle
+        HideScoreAndPauseButton();
     }
 
     public void OnPauseButtonPressed()
@@ -77,6 +80,36 @@ public class CanvasManager : MonoBehaviour
         else
         {
             GameManager.Instance.PauseGame();
+        }
+    }
+
+    public void StartCountdown(bool shouldRespawn)
+    {
+        StartCoroutine(StartCountdownCoroutine(shouldRespawn));
+    }
+
+    // Geri sayým fonksiyonu
+    public IEnumerator StartCountdownCoroutine(bool shouldRespawn)
+    {
+        Time.timeScale = 0; // Geri sayým sýrasýnda oyun duracak
+        countdownText.gameObject.SetActive(true);
+
+        for (int i = 3; i > 0; i--)
+        {
+            countdownText.text = i.ToString();
+            yield return new WaitForSecondsRealtime(1f); // Oyun süresine baðlý kalmadan geri sayým
+        }
+
+        countdownText.text = "Go!";
+        yield return new WaitForSecondsRealtime(1f);
+
+        countdownText.gameObject.SetActive(false);
+        Time.timeScale = 1; // Geri sayým bitince oyun devam edecek
+
+        // Yalnýzca oyun baþlatýldýðýnda veya öldükten sonra top spawnlanacak
+        if (shouldRespawn)
+        {
+            GameManager.Instance.ActivateGame(); // Oyunu baþlat
         }
     }
 }

@@ -8,20 +8,37 @@ public class Ball : MonoBehaviour
     {
         if (other.CompareTag("Collectible"))
         {
-            //ScoreManager.Instance.AddScore(1);
 
             GameManager.Instance.AddScore(scorePoint);
 
-            // Yem'in pozisyonunu al
             Vector3 collectiblePosition = other.transform.position;
 
-            // SpawnManager'a collectible'ý ve pozisyonunu silmesi talimatýný ver
             SpawnManager.Instance.RemoveCollectible(other.gameObject, collectiblePosition);
+
+            if (!GameManager.Instance.isTutorialCompleted)
+            {
+                TutorialManager.Instance.NextStep();
+            }
         }
         else if (other.CompareTag("Death Trap"))
         {
-            Destroy(this.gameObject);
-            GameManager.Instance.EndGame();
+            if (!GameManager.Instance.isTutorialCompleted)
+            {
+                TutorialManager.Instance.DeadInTutorial();
+            }
+            else
+            {
+                GameManager.Instance.EndGame();
+                Destroy(this.gameObject);
+            } 
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Wall") && TutorialManager.Instance != null && !GameManager.Instance.isTutorialCompleted && TutorialManager.Instance.currentStep == 0)
+        {
+            TutorialManager.Instance.NextStep();
         }
     }
 

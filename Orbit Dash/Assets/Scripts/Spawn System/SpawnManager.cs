@@ -25,7 +25,9 @@ public class SpawnManager : MonoBehaviour
     private bool isProcessingQueue = false;
 
     public GameObject ballPrefab; 
-    private GameObject currentBall; 
+    private GameObject currentBall;
+
+    public bool ifDiedOnce = false;
 
     private void Awake()
     {
@@ -69,7 +71,7 @@ public class SpawnManager : MonoBehaviour
 
     private void ProcessQueue()
     {
-        if (isProcessingQueue || spawnQueue.Count == 0 || !GameManager.Instance.isGameActive) return; // Oyun aktif deðilse iþlemi durdur
+        if (isProcessingQueue || spawnQueue.Count == 0 || !GameManager.Instance.isGameActive) return; 
 
         StartCoroutine(ProcessQueueCoroutine());
     }
@@ -79,7 +81,7 @@ public class SpawnManager : MonoBehaviour
         isProcessingQueue = true;
         while (spawnQueue.Count > 0)
         {
-            if (!GameManager.Instance.isGameActive) break; // Oyun durduysa iþlemi durdur
+            if (!GameManager.Instance.isGameActive) break; 
             var spawnAction = spawnQueue.Dequeue();
             spawnAction();
             yield return new WaitForSeconds(queueProcessWaitTime);
@@ -89,12 +91,14 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnObject(SpawnableObject spawnableData, List<GameObject> objectList)
     {
-        if (objectList.Count >= spawnableData.maxCount || !GameManager.Instance.isGameActive) return; // Oyun aktif deðilse veya limit doluysa çýk
+        if (objectList.Count >= spawnableData.maxCount || !GameManager.Instance.isGameActive) return; 
 
         Vector3 randomPosition;
         Vector3 spawnPosition;
         int maxAttempts = 10;
         int attempts = 0;
+
+        Vector3 ballPosition = currentBall.transform.position; 
 
         do
         {
@@ -102,7 +106,8 @@ public class SpawnManager : MonoBehaviour
             spawnPosition = plain.TransformPoint(randomPosition);
             attempts++;
         }
-        while (!IsFarEnoughFromOthers(spawnPosition) && attempts < maxAttempts);
+
+        while ((!IsFarEnoughFromOthers(spawnPosition) || !IsFarEnoughFromBall(spawnPosition, ballPosition)) && attempts < maxAttempts);
 
         if (attempts >= maxAttempts) return;
 
@@ -113,6 +118,11 @@ public class SpawnManager : MonoBehaviour
         objectPositions.Add(spawnPosition);
 
         spawnQueue.Enqueue(() => DestroyObjectAfterTime(spawnedObject, spawnPosition, spawnableData.lifeTime, objectList));
+    }
+
+    private bool IsFarEnoughFromBall(Vector3 newPosition, Vector3 ballPosition)
+    {
+        return Vector3.Distance(newPosition, ballPosition) >= minimumSpawnDistance;
     }
 
     private void DestroyObjectAfterTime(GameObject obj, Vector3 position, float delay, List<GameObject> objectList)
@@ -150,11 +160,11 @@ public class SpawnManager : MonoBehaviour
     }
     public void ClearAreaAround(Vector3 position, float radius)
     {
-        // Engelleri kontrol et
+
         ClearObjectsInRange(spawnedObstacles, position, radius);
-        // Ölüm tuzaklarýný kontrol et
+
         ClearObjectsInRange(spawnedDeathTraps, position, radius);
-        // Yemleri kontrol et
+
         ClearObjectsInRange(spawnedCollectibles, position, radius);
     }
 
@@ -179,13 +189,11 @@ public class SpawnManager : MonoBehaviour
     }
     public void SpawnBall(Vector3 spawnPosition)
     {
-        // Eðer sahnede hâlihazýrda bir top varsa onu yok edelim
         if (currentBall != null)
         {
             Destroy(currentBall);
         }
 
-        // Yeni topu belirtilen pozisyonda spawnla ve referansý sakla
         currentBall = Instantiate(ballPrefab, spawnPosition, Quaternion.identity);
     }
 

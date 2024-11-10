@@ -7,6 +7,7 @@ TagManager:
   - Plain
   - Collectible
   - Death Trap
+  - Wall
   layers:
   - Default
   - TransparentFX
