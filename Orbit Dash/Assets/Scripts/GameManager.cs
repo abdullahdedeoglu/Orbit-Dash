@@ -15,6 +15,9 @@ public class GameManager : MonoBehaviour
 
     public GameObject cameraHolder;
 
+    private int gameOverCount = 0;
+    private bool adIsShowing = false;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -26,8 +29,10 @@ public class GameManager : MonoBehaviour
             Instance = this;
         }
 
+        gameOverCount = PlayerPrefs.GetInt("GameOverCount", 0); // PlayerPrefs'ten oku
         highScore = PlayerPrefs.GetInt("HighScore", 0);
     }
+
 
     private void Start()
     {
@@ -77,6 +82,34 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.Save();
         }
 
+        gameOverCount++;
+        PlayerPrefs.SetInt("GameOverCount", gameOverCount);
+        PlayerPrefs.Save();
+
+        if (gameOverCount % 2 == 0)
+        {
+            // Interstitial reklamı göster
+            adIsShowing = true;
+            FindObjectOfType<AdManager>().ShowInterstitial();
+        }
+        else
+        {
+            // Reklam yoksa direkt Game Over UI aç
+            ShowGameOver();
+        }
+    }
+
+    public void OnInterstitialAdClosed()
+    {
+        if (adIsShowing)
+        {
+            adIsShowing = false;
+            ShowGameOver();
+        }
+    }
+
+    private void ShowGameOver()
+    {
         CanvasManager.Instance.ShowGameOverUI(currentScore, highScore);
     }
 
@@ -133,7 +166,13 @@ public class GameManager : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenuScene");
     }
 
-    public void ContinueGame()
+    public void ContinueButtonPressed()
+    {
+        FindObjectOfType<AdManager>().ShowRewarded(); // Reklam göster
+    }
+
+    // Bu çağrı AdManager'dan geldiğinde olacak
+    public void ContinueAfterAd()
     {
         gameOverCanvas.SetActive(false);
         isGameActive = false;
@@ -143,6 +182,13 @@ public class GameManager : MonoBehaviour
 
         CanvasManager.Instance.StartCountdown(true);
     }
+
+    private void OnApplicationQuit()
+    {
+        PlayerPrefs.SetInt("GameOverCount", 0);
+        PlayerPrefs.Save();
+    }
+
 
 
 }

@@ -21,4 +21,10 @@ public class MainMenu : MonoBehaviour
     {
         Application.Quit();
     }
+
+    private void OnApplicationQuit()
+    {
+        PlayerPrefs.SetInt("GameOverCount", 0);
+        PlayerPrefs.Save();
+    }
 }
